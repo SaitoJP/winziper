@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/SaitoJP/winziper/cmd/components/menu"
+	"github.com/SaitoJP/winziper/cmd/components/spinner"
 	"github.com/SaitoJP/winziper/cmd/components/textinput"
 	"github.com/SaitoJP/winziper/cmd/utils/file"
 	"github.com/SaitoJP/winziper/cmd/utils/zip"
@@ -32,7 +33,9 @@ var rootCmd = &cobra.Command{
 				return
 			}
 
+			spinner.Run()
 			err := zip.Write(path, true)
+			spinner.Quit()
 			if err != nil {
 				panic(err)
 			}
@@ -44,7 +47,9 @@ var rootCmd = &cobra.Command{
 			}
 
 			pass := textinput.Run("パスワード入力")
+			spinner.Run()
 			err := zip.WriteEncrypted(path, pass, true)
+			spinner.Quit()
 			if err != nil {
 				panic(err)
 			}

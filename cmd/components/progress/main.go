@@ -31,6 +31,7 @@ type model struct {
 	progress progress.Model
 }
 
+// FIXME: 汎用化できてない
 func Run() {
 	m := model{
 		progress: progress.New(progress.WithDefaultGradient()),
