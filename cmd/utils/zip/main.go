@@ -2,12 +2,12 @@ package zip
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/SaitoJP/winziper/cmd/utils/file"
 	"github.com/tomtwinkle/garbledreplacer"
 	"github.com/yeka/zip"
 	"golang.org/x/text/encoding/japanese"
@@ -152,23 +152,10 @@ func addToZipInternal(archive *zip.Writer, source, baseDir, path, password strin
 
 // uniqueZipPath は、指定されたパスに基づいてユニークなZIPファイルパスを生成します。
 func uniqueZipPath(path string) (string, error) {
-	// 拡張子を除いた元のファイル名を取得
-	dir, base := filepath.Split(path)
-	ext := filepath.Ext(base)
-	base = base[:len(base)-len(ext)]
-	zipPath := filepath.Join(dir, fmt.Sprintf("%s.zip", base))
-
-	// ファイルが既に存在するかチェック
-	if _, err := os.Stat(zipPath); os.IsNotExist(err) {
-		// 存在しない場合はそのパスをそのまま使用
-		return zipPath, nil
+	newPath, err := file.UniqueFilePathWithExtension(path, "zip")
+	if err != nil {
+		return "", err
 	}
 
-	// 既に存在する場合はユニークな名前を探す
-	for i := 1; ; i++ {
-		newPath := filepath.Join(dir, fmt.Sprintf("%s(%d).zip", base, i))
-		if _, err := os.Stat(newPath); os.IsNotExist(err) {
-			return newPath, nil
-		}
-	}
+	return newPath, nil
 }
