@@ -1,18 +1,14 @@
 package zip
 
 import (
-	"bytes"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/SaitoJP/winziper/cmd/utils/file"
-	"github.com/tomtwinkle/garbledreplacer"
+	"github.com/SaitoJP/winziper/cmd/utils/str"
 	"github.com/yeka/zip"
-	"golang.org/x/text/encoding/japanese"
-	"golang.org/x/text/transform"
-	"golang.org/x/text/unicode/norm"
 )
 
 // パスワードなし。isWindowsがtrueの場合、Mac特有のファイルを排除し、ShiftJISに変換
@@ -70,19 +66,6 @@ func write(source, password string, isWindows bool) error {
 	return err
 }
 
-func encodePath(path string) (string, error) {
-	// ShiftJISに変換できない文字を?に変換する
-	var buf bytes.Buffer
-	w := transform.NewWriter(&buf, garbledreplacer.NewTransformer(japanese.ShiftJIS, '?'))
-	if _, err := w.Write([]byte(norm.NFC.String(path))); err != nil {
-		return "", err
-	}
-	if err := w.Close(); err != nil {
-		return "", err
-	}
-	return buf.String(), nil
-}
-
 func addToZip(archive *zip.Writer, source, baseDir, path string, isWindows bool) error {
 	return addToZipInternal(archive, source, baseDir, path, "", isWindows)
 }
@@ -113,7 +96,7 @@ func addToZipInternal(archive *zip.Writer, source, baseDir, path, password strin
 
 	// ZIPファイル内でのパス名。Windowsの場合はShiftJISに変換
 	if isWindows {
-		encodedName, err2 := encodePath(relPath)
+		encodedName, err2 := str.EncodeShiftJIS(relPath)
 		if err2 != nil {
 			return err2
 		}
