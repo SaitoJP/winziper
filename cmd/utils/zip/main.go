@@ -51,6 +51,11 @@ func write(source, password string, isWindows bool) error {
 			return err
 		}
 
+		// ソースのパスは不要なためスキップする
+		if source == path {
+			return nil
+		}
+
 		// Mac特有のファイルを除外
 		if isWindows && (strings.Contains(path, "__MACOSX") || strings.Contains(path, ".DS_Store")) {
 			return nil
